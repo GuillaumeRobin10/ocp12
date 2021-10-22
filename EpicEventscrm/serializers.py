@@ -4,10 +4,11 @@ from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from .models import Client, Contrat, Event
 
+
 class ClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Client
-        fields = ('sales_admin', "company_name", "first_name", 'last_name', "email", "phone", 'mobile',"Convert","date_created","date_updated")
+        fields = ('sales_admin', "company_name", "first_name", 'last_name', "email", "phone", 'mobile', "Convert", "date_created", "date_updated")
         extra_kwargs = {
             'sales_admin': {'required': False},
             'Convert': {'required': False},
@@ -17,10 +18,10 @@ class ClientSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data, user):
         client = Client.objects.create(
-            sales_admin =user,
-            company_name = validated_data['company_name'],
+            sales_admin=user,
+            company_name=validated_data['company_name'],
             first_name=validated_data['first_name'],
-            last_name= validated_data['last_name'],
+            last_name=validated_data['last_name'],
             email=validated_data['email'],
             phone=validated_data['phone'],
             mobile=validated_data['mobile'],
@@ -32,7 +33,7 @@ class ClientSerializer(serializers.ModelSerializer):
 class ClientSerializerupdate(serializers.ModelSerializer):
     class Meta:
         model = Client
-        fields = ('sales_admin', "company_name", "first_name", 'last_name', "email", "phone", 'mobile',"Convert","date_created","date_updated")
+        fields = ('sales_admin', "company_name", "first_name", 'last_name', "email", "phone", 'mobile', "Convert", "date_created", "date_updated")
         extra_kwargs = {
             'sales_admin': {'required': False},
             'company_name': {'required': False},
