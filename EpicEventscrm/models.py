@@ -33,6 +33,7 @@ class Contrat(models.Model):
     def get_contrat_by_id(identity):
         return Contrat.objects.get(id__in=identity)
 
+
 class Event(models.Model):
     contrat = models.ForeignKey(Contrat, on_delete=models.CASCADE, related_name="contrat")
     support_contact = models.ForeignKey(User, on_delete=models.CASCADE, related_name="Support_contact")
@@ -41,5 +42,3 @@ class Event(models.Model):
     event = models.DateTimeField(auto_now_add=False)
     note = models.TextField(max_length=1000)
     attendees = models.IntegerField(null=True)
-
-
