@@ -6,7 +6,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from django.core.exceptions import PermissionDenied
-import datetime
+from django.utils import timezone
 from django.contrib.auth.models import User
 
 from .filter import Clientfilter, Contratfilter, Eventfilter
@@ -153,20 +153,20 @@ class ContratUnique(APIView):
     permission_classes = (IsAuthenticated,)
 
     @staticmethod
-    def get_object(pk):
+    def get_object(request, pk):
         try:
             return Contrat.objects.get(pk=pk)
         except Contrat.DoesNotExist:
             raise Http404
 
-    def get(self, pk):
-        contrat = self.get_object(pk)
+    def get(self, request, pk):
+        contrat = self.get_object(request, pk)
         serializer = ContratSerializer(contrat)
         return Response(serializer.data)
 
     def put(self, request, pk):
-        contrat = self.get_object(pk)
-        if request.user == contrat.client_id or allowed_users(request.user, ["gestion"]):
+        contrat = self.get_object(request, pk)
+        if request.user == contrat.client_id.sales_admin or allowed_users(request.user, ["gestion"]):
             serializer = ContratupdateSerializer(contrat, request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -176,8 +176,8 @@ class ContratUnique(APIView):
             raise PermissionDenied
 
     def delete(self, request, pk):
-        contrat = self.get_object(pk)
-        if request.user == contrat.client_id or allowed_users(request.user, ["gestion"]):
+        contrat = self.get_object(request, pk)
+        if request.user == contrat.client_id.sales_admin or allowed_users(request.user, ["gestion"]):
             contrat.delete()
             return Response(status=status.HTTP_200_OK)
         else:
@@ -188,22 +188,21 @@ class EventUnique(APIView):
     permission_classes = (IsAuthenticated,)
 
     @staticmethod
-    def get_object(pk):
+    def get_object(request, pk):
         try:
             return Event.objects.get(pk=pk)
         except Event.DoesNotExist:
             raise Http404
 
-    def get(self, pk):
-        event = self.get_object(pk)
+    def get(self, request, pk):
+        event = self.get_object(request, pk)
         serializer = EventSerializer(event)
         return Response(serializer.data)
 
     def put(self, request, pk):
-        event = self.get_object(pk)
+        event = self.get_object(request, pk)
         if request.user == event.support_contact or allowed_users(request.user, ["gestion"]):
-            if event.event < datetime.datetime.now():
-
+            if event.event < timezone.now():
                 serializer = EventSerializerupdate(event, request.data)
                 if serializer.is_valid():
                     serializer.save()
@@ -213,7 +212,7 @@ class EventUnique(APIView):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
     def delete(self, request, pk):
-        event = self.get_object(pk)
+        event = self.get_object(request, pk)
         if request.user == event.support_contact or allowed_users(request.user, ["gestion"]):
             event.delete()
             return Response(status=status.HTTP_200_OK)

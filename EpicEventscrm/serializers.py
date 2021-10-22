@@ -64,6 +64,9 @@ class ContratupdateSerializer(serializers.ModelSerializer):
         model = Contrat
         fields = ('status', "amont", "payment_due", "date_updated", "date_signature")
         extra_kwargs = {
+            'status': {'required': False},
+            'amont': {'required': False},
+            'payment_due': {'required': False},
             'date_signature': {'required': False},
             'date_updated': {'required': False},
         }
