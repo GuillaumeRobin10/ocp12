@@ -42,14 +42,14 @@ class ClientGeneral(generics.ListAPIView):
 
     @staticmethod
     def post(request):
-        if allowed_users(request.user,["ventes","gestion"]):
+        if allowed_users(request.user, ["ventes", "gestion"]):
             serializer = ClientSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.create(request.data, request.user)
-                return Response(serializer.data,status=status.HTTP_201_CREATED)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response("forbidden access",status=status.HTTP_403_FORBIDDEN)
+            return Response("forbidden access", status=status.HTTP_403_FORBIDDEN)
 
 
 class ContratGeneral(generics.ListAPIView):
@@ -61,20 +61,21 @@ class ContratGeneral(generics.ListAPIView):
     queryset = Contrat.objects.all()
     serializer_class = ContratSerializer
     filterset_class = Contratfilter
+
     @staticmethod
     def post(request):
-        if allowed_users(request.user, ["ventes","gestion"]):
-            serializer = ContratSerializer(data = request.data)
+        if allowed_users(request.user, ["ventes", "gestion"]):
+            serializer = ContratSerializer(data=request.data)
             if serializer.is_valid():
                 client = Client.get_client_by_id(request.data["client_id"])
                 contrat = Contrat.objects.create(
-                status=request.data['status'],
-                amont=request.data['amont'],
-                payment_due=request.data['payment_due'],
-                client_id=client
+                    status=request.data['status'],
+                    amont=request.data['amont'],
+                    payment_due=request.data['payment_due'],
+                    client_id=client
                 )
                 contrat.save()
-                return Response(serializer.data,status=status.HTTP_201_CREATED)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response("forbidden access", status=status.HTTP_403_FORBIDDEN)
 
@@ -88,22 +89,23 @@ class EventGeneral(generics.ListAPIView):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     filterset_class = Eventfilter
+
     @staticmethod
     def post(request):
-        if allowed_users(request.user, ["ventes","gestion"]):
-            serializer = EventSerializer(data = request.data)
+        if allowed_users(request.user, ["ventes", "gestion"]):
+            serializer = EventSerializer(data=request.data)
             if serializer.is_valid():
                 contrat = Contrat.get_contrat_by_id(request.data["contrat"])
                 user = User.objects.get(id__in=request.data["support_contact"])
                 event = Event.objects.create(
-                contrat=contrat,
-                support_contact=user,
-                event=request.data['event'],
-                note=request.data['note'],
-                attendees = request.data['attendees'],
+                    contrat=contrat,
+                    support_contact=user,
+                    event=request.data['event'],
+                    note=request.data['note'],
+                    attendees=request.data['attendees'],
                 )
                 event.save()
-                return Response(serializer.data,status=status.HTTP_201_CREATED)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(request.data, status=status.HTTP_400_BAD_REQUEST)
         return Response("forbidden access", status=status.HTTP_403_FORBIDDEN)
 
@@ -113,15 +115,16 @@ class ClientUnique(APIView):
     crud method for a client
     """
     permission_classes = (IsAuthenticated,)
+
     @staticmethod
-    def get_object(request,pk):
+    def get_object(request, pk):
         try:
             return Client.objects.get(pk=pk)
         except Client.DoesNotExist:
             raise Http404
 
-    def get(self,request,pk):
-        client = self.get_object(request,pk)
+    def get(self, request, pk):
+        client = self.get_object(request, pk)
         serializer = ClientSerializer(client)
         return Response(serializer.data)
 
@@ -131,7 +134,7 @@ class ClientUnique(APIView):
             serializer = ClientSerializerupdate(client, request.data)
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data,status=status.HTTP_200_OK)
+                return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
             raise PermissionDenied
@@ -148,6 +151,7 @@ class ClientUnique(APIView):
 class ContratUnique(APIView):
 
     permission_classes = (IsAuthenticated,)
+
     @staticmethod
     def get_object(pk):
         try:
@@ -160,18 +164,18 @@ class ContratUnique(APIView):
         serializer = ContratSerializer(contrat)
         return Response(serializer.data)
 
-    def put (self, request, pk):
+    def put(self, request, pk):
         contrat = self.get_object(pk)
         if request.user == contrat.client_id:
             serializer = ContratupdateSerializer(contrat, request.data)
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data,status=status.HTTP_201_CREATED)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
             raise PermissionDenied
 
-    def delete (self, request, pk):
+    def delete(self, request, pk):
         contrat = self.get_object(pk)
         if request.user == contrat.client_id:
             contrat.delete()
@@ -182,6 +186,7 @@ class ContratUnique(APIView):
 
 class EventUnique(APIView):
     permission_classes = (IsAuthenticated,)
+
     @staticmethod
     def get_object(pk):
         try:
@@ -189,12 +194,12 @@ class EventUnique(APIView):
         except Event.DoesNotExist:
             raise Http404
 
-    def get(self,pk):
+    def get(self, pk):
         event = self.get_object(pk)
         serializer = EventSerializer(event)
         return Response(serializer.data)
 
-    def put (self, request, pk):
+    def put(self, request, pk):
         event = self.get_object(pk)
         if request.user == event.support_contact:
             if event.event < datetime.datetime.now():
@@ -202,12 +207,12 @@ class EventUnique(APIView):
                 serializer = EventSerializerupdate(event, request.data)
                 if serializer.is_valid():
                     serializer.save()
-                    return Response(serializer.data,status=status.HTTP_201_CREATED)
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-    def delete (self,request, pk):
+    def delete(self, request, pk):
         event = self.get_object(pk)
         if request.user == event.support_contact:
             event.delete()
