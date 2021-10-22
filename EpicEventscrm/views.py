@@ -130,7 +130,7 @@ class ClientUnique(APIView):
 
     def put(self, request, pk):
         client = self.get_object(request, pk)
-        if request.user == client.sales_admin:
+        if request.user == client.sales_admin or allowed_users(request.user, ["gestion"]):
             serializer = ClientSerializerupdate(client, request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -141,7 +141,7 @@ class ClientUnique(APIView):
 
     def delete(self, request, pk):
         client = self.get_object(request, pk)
-        if request.user == client.sales_admin:
+        if request.user == client.sales_admin or allowed_users(request.user, ["gestion"]):
             client.delete()
             return Response(status=status.HTTP_200_OK)
         else:
@@ -166,7 +166,7 @@ class ContratUnique(APIView):
 
     def put(self, request, pk):
         contrat = self.get_object(pk)
-        if request.user == contrat.client_id:
+        if request.user == contrat.client_id or allowed_users(request.user, ["gestion"]):
             serializer = ContratupdateSerializer(contrat, request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -177,7 +177,7 @@ class ContratUnique(APIView):
 
     def delete(self, request, pk):
         contrat = self.get_object(pk)
-        if request.user == contrat.client_id:
+        if request.user == contrat.client_id or allowed_users(request.user, ["gestion"]):
             contrat.delete()
             return Response(status=status.HTTP_200_OK)
         else:
@@ -201,7 +201,7 @@ class EventUnique(APIView):
 
     def put(self, request, pk):
         event = self.get_object(pk)
-        if request.user == event.support_contact:
+        if request.user == event.support_contact or allowed_users(request.user, ["gestion"]):
             if event.event < datetime.datetime.now():
 
                 serializer = EventSerializerupdate(event, request.data)
@@ -214,7 +214,7 @@ class EventUnique(APIView):
 
     def delete(self, request, pk):
         event = self.get_object(pk)
-        if request.user == event.support_contact:
+        if request.user == event.support_contact or allowed_users(request.user, ["gestion"]):
             event.delete()
             return Response(status=status.HTTP_200_OK)
         else:
