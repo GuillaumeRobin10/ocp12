@@ -3,7 +3,7 @@
 Openclassroom projet 12
 
 Ce projet est une application web à but pédagogique à exécuter localement.
-Cette application permets est un CRM permettant de gérer des contrats et des évènements.
+Cette application est un CRM permettant de gérer des contrats et des évènements.
 Cette application prends la forme d'une API.
 
 ### Installation et exécution de l'application
